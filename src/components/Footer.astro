@@ -1,0 +1,15 @@
+---
+const updated = new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+---
+
+<footer class="mt-24 border-t border-line">
+  <div class="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <p>© Ryan Ma · Last updated {updated}</p>
+    <ul class="flex flex-wrap gap-x-4 gap-y-1">
+      <li><a class="hover:text-ink" href="mailto:u3664746@connect.hku.hk">Email</a></li>
+      <li><a class="hover:text-ink" href="https://www.linkedin.com/in/-ryan-ma-">LinkedIn</a></li>
+      <li><a class="hover:text-ink" href="https://github.com/Lecberg">GitHub</a></li>
+      <li><a class="hover:text-ink" href="https://lecberg.github.io/personal_website/">Engineering work</a></li>
+    </ul>
+  </div>
+</footer>

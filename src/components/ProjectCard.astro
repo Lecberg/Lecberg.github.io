@@ -1,0 +1,40 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+const { project } = Astro.props;
+const d = project.data;
+const href = `/projects/${project.id}/`;
+---
+
+<article class="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface transition hover:border-accent/60">
+  <a href={href} class="block overflow-hidden border-b border-line" tabindex="-1" aria-hidden="true">
+    <Image
+      src={d.cover}
+      alt=""
+      widths={[480, 800, 1200]}
+      sizes="(min-width: 768px) 320px, 100vw"
+      class="aspect-[16/10] w-full object-cover object-top transition duration-300 group-hover:scale-[1.02]"
+    />
+  </a>
+  <div class="flex flex-1 flex-col p-5">
+    <p class="text-xs text-muted">{d.dates}</p>
+    <h3 class="mt-1 text-lg font-semibold leading-snug tracking-tight">
+      <a href={href} class="text-ink no-underline hover:text-accent">{d.title}</a>
+    </h3>
+    <p class="mt-2 text-sm text-muted">{d.tagline}</p>
+    <ul class="mt-4 flex flex-wrap gap-1.5" aria-label="Built with">
+      {d.stack.slice(0, 4).map((t) => (
+        <li class="rounded border border-line px-1.5 py-0.5 font-mono text-[11px] text-muted">{t}</li>
+      ))}
+    </ul>
+    <div class="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-5 text-sm font-medium">
+      <a href={href} class="text-accent hover:underline">Case study →</a>
+      {d.links.demo && <a href={d.links.demo} class="text-muted hover:text-ink hover:underline">{d.links.demoLabel ?? "Live demo"}</a>}
+      <a href={d.links.code} class="text-muted hover:text-ink hover:underline">Code</a>
+    </div>
+  </div>
+</article>

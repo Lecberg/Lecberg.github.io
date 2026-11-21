@@ -1,0 +1,105 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import Flow from "../components/Flow.astro";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+
+const chain = [
+  { kind: "step", text: "Something starts it: a form, a timetable or a question" },
+  { kind: "step", text: "Fetch the data it needs" },
+  { kind: "ai", text: "An LLM does one clear job" },
+  { kind: "human", text: "The output is checked" },
+  { kind: "step", text: "Deliver: a draft, a report or an answer" },
+] as const;
+
+const rules = [
+  {
+    title: "No invented facts",
+    text: "Prompts allow only facts found in the source: the CV, the article or the data. When something is missing, the output says so.",
+  },
+  {
+    title: "Fixed output shapes",
+    text: "Each LLM step returns JSON in a set shape, so the next step can check it and use it without guessing.",
+  },
+  {
+    title: "A person signs off",
+    text: "Nothing is sent on its own. Drafts wait for a reviewer, and answers show the lookups behind them.",
+  },
+  {
+    title: "Tested before it is trusted",
+    text: "Fixed sets of test questions and automated checks show how well a model does before anyone relies on it.",
+  },
+];
+---
+
+<Base
+  title="Ryan Ma · AI workflow projects"
+  description="AI workflows by Ryan Ma that take over manual work: an application-kit generator, a bilingual newsletter pipeline and a tool-calling map assistant."
+>
+  <!-- Hero -->
+  <section class="mx-auto max-w-5xl px-4 pb-16 pt-16 sm:px-6 sm:pt-24">
+    <p class="font-mono text-sm text-accent">Ryan Ma · MSc student, The University of Hong Kong</p>
+    <h1 class="mt-4 max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
+      I build AI workflows that take over manual work, with a person checking what goes out.
+    </h1>
+    <p class="mt-6 max-w-2xl text-lg text-muted">
+      Three working projects: one writes job applications, one drafts a bilingual newsletter, and one answers questions about traffic signs on a map. Each has a live demo or public code.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3 text-sm font-medium">
+      <a href="#projects" class="rounded-lg bg-accent px-4 py-2.5 text-accent-ink no-underline hover:opacity-90">See the projects</a>
+      <a href="https://github.com/Lecberg" class="rounded-lg border border-line px-4 py-2.5 text-ink no-underline hover:border-accent">GitHub</a>
+      <a href="https://www.linkedin.com/in/-ryan-ma-" class="rounded-lg border border-line px-4 py-2.5 text-ink no-underline hover:border-accent">LinkedIn</a>
+      <a href="mailto:u3664746@connect.hku.hk" class="rounded-lg border border-line px-4 py-2.5 text-ink no-underline hover:border-accent">Email me</a>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects" class="scroll-mt-20 border-t border-line">
+    <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+      <h2 class="text-2xl font-bold tracking-tight">Projects</h2>
+      <p class="mt-2 text-muted">Each card opens a case study: the problem, how it works, how it is kept reliable, and the results.</p>
+      <div class="mt-8 grid gap-6 md:grid-cols-3">
+        {projects.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- Approach -->
+  <section id="approach" class="scroll-mt-20 border-t border-line">
+    <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+      <h2 class="text-2xl font-bold tracking-tight">How I build</h2>
+      <p class="mt-2 max-w-2xl text-muted">All three projects follow the same chain. The LLM does one clear job in the middle, and plain code handles everything that has to be exact.</p>
+      <div class="mt-8">
+        <Flow steps={[...chain]} label="The shared workflow chain" />
+      </div>
+      <ul class="mt-10 grid gap-4 sm:grid-cols-2">
+        {rules.map((r) => (
+          <li class="rounded-xl border border-line bg-surface p-5">
+            <h3 class="font-semibold">{r.title}</h3>
+            <p class="mt-1.5 text-sm text-muted">{r.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="scroll-mt-20 border-t border-line">
+    <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+      <h2 class="text-2xl font-bold tracking-tight">About</h2>
+      <div class="mt-4 max-w-2xl space-y-4 text-muted">
+        <p>
+          I'm Ryan Ma, studying for an MSc in Urban Design &amp; Transport at The University of Hong Kong (graduating 2027). Before that I took a BEng in Traffic Engineering at Chang'an University.
+        </p>
+        <p>
+          Transport work has a lot of repeated steps: reading documents, checking records and writing the same kinds of reports. That is where I started using LLMs. During my internship at MVA Hong Kong I built the first version of the traffic-sign assistant shown here, and I have kept building since.
+        </p>
+        <p>
+          My transport and engineering projects are on a <a href="https://lecberg.github.io/personal_website/" class="text-accent underline">separate site</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

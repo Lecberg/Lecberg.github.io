@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Colours live in CSS variables so light and dark mode switch in one place. */
+:root {
+  --bg: #fafaf8;
+  --surface: #ffffff;
+  --ink: #1c1c1a;
+  --muted: #5d5d58;
+  --line: #e3e2dd;
+  --accent: #095cac;
+  --accent-ink: #ffffff;
+  --accent-soft: #e8f0f9;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #141413;
+  --surface: #1c1c1b;
+  --ink: #ecebe7;
+  --muted: #a3a29c;
+  --line: #2f2f2c;
+  --accent: #6aa7e8;
+  --accent-ink: #0d1b2a;
+  --accent-soft: #172638;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Body text of a case study (rendered from Markdown). */
+.prose-case h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 2.5rem 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+.prose-case p {
+  margin: 0.75rem 0;
+}
+.prose-case ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0.75rem 0;
+}
+.prose-case li {
+  margin: 0.4rem 0;
+}
+.prose-case li::marker {
+  color: var(--accent);
+}
+.prose-case strong {
+  font-weight: 650;
+}
+.prose-case code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--accent-soft);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+.prose-case a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
