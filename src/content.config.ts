@@ -20,6 +20,8 @@ const projects = defineCollection({
         demoLabel: z.string().optional(),
       }),
       problem: z.string(),
+      tryit: z.enum(["tpdm", "ppp", "careerpilot"]).optional(), // which hands-on panel to show
+
       flow: z.array(
         z.object({
           kind: z.enum(["step", "ai", "human"]),

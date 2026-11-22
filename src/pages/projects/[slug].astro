@@ -4,6 +4,9 @@ import type { CollectionEntry } from "astro:content";
 import { Image } from "astro:assets";
 import Base from "../../layouts/Base.astro";
 import Flow from "../../components/Flow.astro";
+import TpdmMap from "../../components/tryit/TpdmMap.astro";
+import PppRun from "../../components/tryit/PppRun.astro";
+import CareerPilotReplay from "../../components/tryit/CareerPilotReplay.astro";
 
 export async function getStaticPaths() {
   const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
@@ -80,6 +83,11 @@ const { Content } = await render(project);
         <Flow steps={d.flow} />
       </div>
     </section>
+
+    <!-- Hands-on panel -->
+    {d.tryit === "tpdm" && <TpdmMap />}
+    {d.tryit === "ppp" && <PppRun />}
+    {d.tryit === "careerpilot" && <CareerPilotReplay />}
 
     <!-- Markdown body: What I built, Keeping it reliable, ... -->
     <div class="prose-case mt-4">

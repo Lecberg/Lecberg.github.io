@@ -1,0 +1,222 @@
+---
+import TryItFrame from "./TryItFrame.astro";
+---
+
+<TryItFrame
+  title="Step through one real collection run"
+  intro="This is one real run of the pipeline's collect step: every article it found, how each was scored, which were duplicates, and what was kept. On the last step, switch keywords off to see the ranking change."
+  source="Recorded from one fresh run of the collect step with the pipeline's built-in sources and keywords, without the LLM step or email. Headlines and links belong to their publishers. In production, articles also build up from earlier runs in the week, so an issue usually has more to choose from."
+>
+  <div id="ppp-tryit" class="space-y-4">
+    <ol id="ppp-steps" class="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="Steps of the run"></ol>
+    <div id="ppp-stage" aria-live="polite" class="min-h-[280px] transition-opacity duration-200">
+      <p class="text-muted">Loading the run…</p>
+    </div>
+    <div class="flex items-center justify-between gap-3 border-t border-line pt-4">
+      <button id="ppp-back" type="button" class="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40">← Back</button>
+      <p id="ppp-meta" class="text-center text-xs text-muted"></p>
+      <button id="ppp-next" type="button" class="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink disabled:opacity-40">Next step →</button>
+    </div>
+    <noscript><p class="text-sm text-muted">This panel needs JavaScript.</p></noscript>
+  </div>
+</TryItFrame>
+
+<script>
+  type A = {
+    i: number; title: string; url: string; source: string; date: string; score: number;
+    dupOf: number | null; dupWhy: string | null; ok: boolean;
+    textKw: number[]; titleKw: number[]; hk: boolean; gov: boolean; low: boolean;
+  };
+  type Run = {
+    runDate: string; seconds: number; keywords: string[]; minScore: number; maxItems: number;
+    sources: { name: string; url: string; found: number; error: string }[];
+    articles: A[]; selected: number[];
+  };
+
+  const root = document.getElementById("ppp-tryit")!;
+  const stage = document.getElementById("ppp-stage")!;
+  const stepsEl = document.getElementById("ppp-steps")!;
+  const back = document.getElementById("ppp-back") as HTMLButtonElement;
+  const next = document.getElementById("ppp-next") as HTMLButtonElement;
+  const meta = document.getElementById("ppp-meta")!;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Small DOM helper; text is always set with textContent, never as HTML.
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text?: string, kids: Node[] = []) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    kids.forEach((k) => e.appendChild(k));
+    return e;
+  }
+  const link = (a: A, cls = "") => {
+    const x = el("a", `hover:text-accent hover:underline ${cls}`, a.title);
+    x.href = a.url;
+    x.rel = "noopener";
+    return x;
+  };
+  const chip = (t: string, on = true) =>
+    el("span", `inline-block rounded px-1.5 py-0.5 font-mono text-[11px] ${on ? "bg-accent-soft text-accent" : "border border-line text-muted line-through"}`, t);
+
+  async function start() {
+    const run: Run = await fetch("/data/ppp-run.json").then((r) => r.json());
+    const unique = run.articles.filter((a) => a.dupOf === null);
+    const dups = run.articles.filter((a) => a.dupOf !== null);
+    const on = new Set(run.keywords.map((_, i) => i));
+
+    // Same rule as the pipeline's score_article(), using only the keywords that are switched on.
+    const score = (a: A) => (a.low ? 0 : 10 * a.textKw.filter((k) => on.has(k)).length + 8 * a.titleKw.filter((k) => on.has(k)).length + 8 * +a.hk + 3 * +a.gov);
+    const select = () =>
+      unique.filter((a) => a.ok && score(a) >= run.minScore).sort((x, y) => score(y) - score(x)).slice(0, run.maxItems);
+
+    // Self-check: with every keyword on, the browser must pick exactly what the pipeline picked.
+    console.assert(JSON.stringify(select().map((a) => a.i)) === JSON.stringify(run.selected), "PPP selection mismatch");
+
+    const steps = [
+      { label: "Collected", count: run.articles.length },
+      { label: "Scored", count: unique.filter((a) => a.score >= run.minScore).length },
+      { label: "Duplicates", count: dups.length },
+      { label: "Kept", count: run.selected.length },
+    ];
+    let current = 0;
+
+    function renderSteps() {
+      stepsEl.replaceChildren(
+        ...steps.map((s, i) => {
+          const b = el("button", `w-full rounded-lg border px-3 py-2 text-left text-sm ${i === current ? "border-accent bg-accent-soft" : "border-line hover:border-accent/60"}`, undefined, [
+            el("span", "block font-mono text-[11px] text-muted", `Step ${i + 1}`),
+            el("span", "block font-semibold", s.label),
+            el("span", "block text-xs text-muted", `${s.count} article${s.count === 1 ? "" : "s"}`),
+          ]);
+          b.type = "button";
+          if (i === current) b.setAttribute("aria-current", "step");
+          b.addEventListener("click", () => go(i));
+          return el("li", "", undefined, [b]);
+        }),
+      );
+      back.disabled = current === 0;
+      next.disabled = current === steps.length - 1;
+    }
+
+    function collectedView() {
+      const max = Math.max(...run.sources.map((s) => s.found), 1);
+      return el("div", "space-y-3", undefined, [
+        el("p", "text-sm", `The run checked ${run.sources.length} sources and found ${run.articles.length} articles. Each source returns at most 100, ranked by score.`),
+        el("ul", "space-y-1.5", undefined, run.sources.map((s) =>
+          el("li", "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[14rem_minmax(0,1fr)_3rem]", undefined, [
+            el("span", "truncate", s.name),
+            el("span", "order-3 col-span-2 h-2 rounded-full bg-line sm:order-none sm:col-span-1", undefined, [
+              el("span", "block h-2 rounded-full bg-accent", undefined),
+            ]),
+            el("span", "text-right font-mono text-xs text-muted", s.error ? `failed` : String(s.found)),
+          ]),
+        )),
+        el("p", "text-xs text-muted", "A source can fail on the day (for example a certificate error on the Legislative Council site). The run carries on with the rest."),
+      ]);
+    }
+
+    function scoredView() {
+      const top = [...unique].sort((x, y) => y.score - x.score).slice(0, 12);
+      return el("div", "space-y-3", undefined, [
+        el("p", "text-sm", `Each keyword found adds 10 points (another 8 if it is in the headline), "Hong Kong" adds 8, and a government source adds 3. An article needs ${run.minScore} points to qualify. The highest scores:`),
+        el("ol", "divide-y divide-line rounded-lg border border-line", undefined, top.map((a) =>
+          el("li", "flex gap-3 px-3 py-2 text-sm", undefined, [
+            el("span", `w-9 shrink-0 text-right font-mono font-semibold ${a.score >= run.minScore ? "text-accent" : "text-muted"}`, String(a.score)),
+            el("div", "min-w-0", undefined, [
+              link(a, "block"),
+              el("div", "mt-1 flex flex-wrap items-center gap-1", undefined, [
+                el("span", "mr-1 text-xs text-muted", a.source),
+                ...[...new Set(a.textKw)].map((k) => chip(run.keywords[k])),
+              ]),
+            ]),
+          ]),
+        )),
+      ]);
+    }
+
+    function dupView() {
+      const byIndex = new Map(run.articles.map((a) => [a.i, a]));
+      const list = el("ul", "space-y-2", undefined, dups.map((d) => {
+        const original = byIndex.get(d.dupOf!)!;
+        return el("li", "rounded-lg border border-line px-3 py-2 text-sm", undefined, [
+          el("p", "text-muted line-through decoration-muted/70", d.title),
+          el("p", "mt-1", undefined, [el("span", "mr-1 text-xs text-accent", `${d.dupWhy} →`), link(original)]),
+        ]);
+      }));
+      const wrap = el("div", "max-h-80 overflow-y-auto pr-1", undefined, [list]);
+      return el("div", "space-y-3", undefined, [
+        el("p", "text-sm", `${dups.length} articles were the same story twice: the same link, or a headline at least 92% the same as one already kept. Each is shown struck through, with the copy that was kept.`),
+        wrap,
+      ]);
+    }
+
+    function keptView() {
+      const box = el("div", "space-y-3");
+      const paint = () => {
+        const sel = select();
+        const changed = on.size !== run.keywords.length;
+        box.replaceChildren(
+          el("p", "text-sm", `${sel.length} article${sel.length === 1 ? "" : "s"} passed every rule (at most ${run.maxItems} go into an issue). These go on to the LLM for bilingual summaries.`),
+          el("ol", "divide-y divide-line rounded-lg border border-line", undefined, sel.length ? sel.map((a, n) =>
+            el("li", "flex gap-3 px-3 py-2 text-sm", undefined, [
+              el("span", "w-6 shrink-0 text-right font-mono text-muted", String(n + 1)),
+              el("div", "min-w-0", undefined, [link(a, "block"), el("span", "text-xs text-muted", `${a.source} · ${score(a)} points`)]),
+            ]),
+          ) : [el("li", "px-3 py-6 text-center text-sm text-muted", "No article qualifies with these keywords.")]),
+          el("div", "rounded-lg bg-bg p-3", undefined, [
+            el("p", "text-sm font-medium", "Keywords: select to switch off or on"),
+            el("div", "mt-2 flex flex-wrap gap-1.5", undefined, run.keywords.map((k, i) => {
+              const b = el("button", "", undefined, [chip(k, on.has(i))]);
+              b.type = "button";
+              b.setAttribute("aria-pressed", String(on.has(i)));
+              b.addEventListener("click", () => { on.has(i) ? on.delete(i) : on.add(i); paint(); });
+              return b;
+            })),
+            changed ? (() => {
+              const r = el("button", "mt-3 text-xs text-accent underline", "Switch all keywords back on");
+              r.type = "button";
+              r.addEventListener("click", () => { run.keywords.forEach((_, i) => on.add(i)); paint(); });
+              return r;
+            })() : el("span"),
+          ]),
+        );
+      };
+      paint();
+      return box;
+    }
+
+    const views = [collectedView, scoredView, dupView, keptView];
+
+    function go(i: number) {
+      current = Math.max(0, Math.min(steps.length - 1, i));
+      renderSteps();
+      const show = () => {
+        stage.replaceChildren(views[current]());
+        if (current === 0) {
+          const max = Math.max(...run.sources.map((s) => s.found), 1);
+          stage.querySelectorAll<HTMLElement>("li span.bg-accent").forEach((bar, n) => {
+            const w = `${(run.sources[n].found / max) * 100}%`;
+            if (reduceMotion) bar.style.width = w;
+            else { bar.style.width = "0"; bar.style.transition = "width 500ms ease-out"; requestAnimationFrame(() => requestAnimationFrame(() => (bar.style.width = w))); }
+          });
+        }
+        stage.style.opacity = "1";
+      };
+      if (reduceMotion) show();
+      else { stage.style.opacity = "0"; setTimeout(show, 150); }
+    }
+
+    back.addEventListener("click", () => go(current - 1));
+    next.addEventListener("click", () => go(current + 1));
+    meta.textContent = `Run on ${new Date(run.runDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} · took ${run.seconds} s`;
+    go(0);
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) {
+      io.disconnect();
+      start().catch(() => { stage.textContent = "The run could not load. Please refresh the page."; });
+    }
+  }, { rootMargin: "200px" });
+  io.observe(root);
+</script>

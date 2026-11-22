@@ -4,6 +4,7 @@ subtitle: An AI drafting pipeline for a bilingual infrastructure newsletter, run
 tagline: Collects news from 10 sources, drafts English and Traditional Chinese summaries, and holds every issue for human approval.
 dates: Sep 2026 – Oct 2026
 order: 2
+tryit: ppp
 role: Solo project, built for one client
 stack: [Python, LLM API, GitHub Actions, Google Sheets API, Brevo API, Next.js, Postgres]
 links:

@@ -1,0 +1,211 @@
+---
+import TryItFrame from "./TryItFrame.astro";
+---
+
+<TryItFrame
+  title="Replay a real run"
+  intro="Press Generate to replay one real run of the live app: a fictional sample CV against a real job ad. Then switch between the finished kit and the JSON the app returned, to see the fixed shape every kit follows."
+  source="Recorded from one real run of the live demo on 22 Nov 2026. The CV is fictional; the job ad is real. The replay is sped up: the real run took 78 seconds."
+>
+  <div id="cp-tryit" class="space-y-4">
+    <div class="grid gap-3 sm:grid-cols-3">
+      <div class="rounded-lg border border-line p-3 sm:col-span-2">
+        <p class="text-xs font-medium text-muted">CV <span class="ml-1 rounded bg-accent-soft px-1 font-mono text-[10px] text-accent">FICTIONAL</span></p>
+        <details class="mt-1 text-sm">
+          <summary class="cursor-pointer"><span id="cp-cv-head">Jordan Lee, BSc Data Science</span> <span class="text-xs text-accent">(show full CV)</span></summary>
+          <pre id="cp-cv" class="mt-2 max-h-60 overflow-auto whitespace-pre-wrap rounded bg-bg p-2 font-mono text-xs text-muted"></pre>
+        </details>
+      </div>
+      <div class="rounded-lg border border-line p-3">
+        <p class="text-xs font-medium text-muted">Job ad <span class="ml-1 rounded bg-accent-soft px-1 font-mono text-[10px] text-accent">REAL</span></p>
+        <p id="cp-job" class="mt-1 text-sm">AI Workflow Specialist (Intern)</p>
+        <p class="mt-1 text-xs text-muted">Tone: <span id="cp-tone">Bold Professional</span></p>
+      </div>
+    </div>
+
+    <button id="cp-go" type="button" class="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-ink hover:opacity-90 disabled:opacity-50 sm:w-auto">Generate application kit</button>
+
+    <ol id="cp-stages" class="hidden space-y-1.5 text-sm" aria-live="polite"></ol>
+
+    <div id="cp-result" class="hidden space-y-4">
+      <div role="tablist" aria-label="Result view" class="inline-flex rounded-lg border border-line p-0.5 text-sm">
+        <button id="cp-tab-kit" role="tab" type="button" class="rounded-md px-3 py-1">Finished kit</button>
+        <button id="cp-tab-json" role="tab" type="button" class="rounded-md px-3 py-1">Raw JSON</button>
+      </div>
+      <div id="cp-kit" role="tabpanel"></div>
+      <div id="cp-json" role="tabpanel" class="hidden">
+        <p class="mb-2 text-xs text-muted">The JSON the app returned for this run, after its own checks (for example the score is kept between 0 and 100). The prompt asks for exactly this shape.</p>
+        <pre class="max-h-[28rem] overflow-auto rounded-lg border border-line bg-bg p-3 font-mono text-xs leading-relaxed"><code id="cp-json-code"></code></pre>
+      </div>
+    </div>
+    <noscript><p class="text-sm text-muted">This panel needs JavaScript.</p></noscript>
+  </div>
+</TryItFrame>
+
+<script>
+  type Kit = {
+    job: { title: string; company: string; location: string; summary: string };
+    fitAnalysis: { overallScore: number; fitSummary: string; strongMatches: string[]; gaps: string[]; applicationStrategy: string };
+    resumeSuggestions: { section: string; problem: string; suggestedRevision: string; reason: string }[];
+    coverLetter: { subject: string; body: string };
+    applicationEmail: { subject: string; body: string };
+  };
+  type RunData = {
+    seconds: number;
+    input: { cv: string; jobTitle: string; company: string; tone: string };
+    research: { warning: string; results: number };
+    kit: Kit;
+  };
+
+  const root = document.getElementById("cp-tryit")!;
+  const go = document.getElementById("cp-go") as HTMLButtonElement;
+  const stagesEl = document.getElementById("cp-stages")!;
+  const result = document.getElementById("cp-result")!;
+  const kitEl = document.getElementById("cp-kit")!;
+  const jsonWrap = document.getElementById("cp-json")!;
+  const jsonCode = document.getElementById("cp-json-code")!;
+  const tabKit = document.getElementById("cp-tab-kit")!;
+  const tabJson = document.getElementById("cp-tab-json")!;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, reduceMotion ? 0 : ms));
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text?: string, kids: Node[] = []) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    kids.forEach((k) => e.appendChild(k));
+    return e;
+  }
+
+  // JSON with simple colouring. Every piece is a text node, so nothing from the data is parsed as HTML.
+  function highlight(value: unknown) {
+    const text = JSON.stringify(value, null, 2);
+    const frag = document.createDocumentFragment();
+    const re = /("(?:\\.|[^"\\])*")(\s*:)?|\b(-?\d+(?:\.\d+)?|true|false|null)\b/g;
+    let last = 0;
+    for (const m of text.matchAll(re)) {
+      frag.append(text.slice(last, m.index));
+      if (m[1] && m[2]) frag.append(el("span", "text-accent", m[1]), m[2]);
+      else if (m[1]) frag.append(el("span", "text-ink", m[1]));
+      else frag.append(el("span", "font-semibold text-accent", m[3]));
+      last = m.index! + m[0].length;
+    }
+    frag.append(text.slice(last));
+    return frag;
+  }
+
+  function ring(score: number) {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 80 80");
+    svg.setAttribute("class", "h-20 w-20 shrink-0");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", `Fit score ${score} out of 100`);
+    const c = 2 * Math.PI * 34;
+    const bg = document.createElementNS(ns, "circle");
+    Object.entries({ cx: "40", cy: "40", r: "34", fill: "none", stroke: "var(--line)", "stroke-width": "8" }).forEach(([k, v]) => bg.setAttribute(k, v));
+    const fg = document.createElementNS(ns, "circle");
+    Object.entries({ cx: "40", cy: "40", r: "34", fill: "none", stroke: "var(--accent)", "stroke-width": "8", "stroke-linecap": "round", transform: "rotate(-90 40 40)", "stroke-dasharray": String(c), "stroke-dashoffset": String(c) }).forEach(([k, v]) => fg.setAttribute(k, v));
+    const t = document.createElementNS(ns, "text");
+    Object.entries({ x: "40", y: "46", "text-anchor": "middle", "font-size": "18", "font-weight": "700", fill: "var(--ink)" }).forEach(([k, v]) => t.setAttribute(k, v));
+    t.textContent = String(score);
+    svg.append(bg, fg, t);
+    requestAnimationFrame(() => {
+      fg.style.transition = reduceMotion ? "none" : "stroke-dashoffset 900ms ease-out";
+      requestAnimationFrame(() => fg.setAttribute("stroke-dashoffset", String(c * (1 - score / 100))));
+    });
+    return svg;
+  }
+
+  const list = (items: string[], mark: string, cls: string) =>
+    el("ul", "mt-2 space-y-2 text-sm", undefined, items.map((t) => el("li", "flex gap-2", undefined, [el("span", `shrink-0 font-bold ${cls}`, mark), el("span", "", t)])));
+
+  const fold = (title: string, body: Node) => {
+    const d = el("details", "rounded-lg border border-line", undefined, [el("summary", "cursor-pointer px-3 py-2 text-sm font-semibold", title), el("div", "border-t border-line px-3 py-3", undefined, [body])]);
+    return d;
+  };
+
+  function renderKit(run: RunData) {
+    const k = run.kit;
+    const f = k.fitAnalysis;
+    kitEl.replaceChildren(
+      el("div", "flex items-center gap-4", undefined, [
+        ring(f.overallScore),
+        el("div", "", undefined, [el("p", "text-xs font-medium text-muted", "Fit score"), el("p", "text-sm", f.fitSummary)]),
+      ]),
+      el("div", "mt-4 grid gap-4 sm:grid-cols-2", undefined, [
+        el("div", "rounded-lg border border-line p-3", undefined, [el("p", "text-sm font-semibold", "Strong matches"), list(f.strongMatches, "+", "text-accent")]),
+        el("div", "rounded-lg border border-line p-3", undefined, [el("p", "text-sm font-semibold", "Gaps, named instead of hidden"), list(f.gaps, "−", "text-muted")]),
+      ]),
+      el("div", "mt-4 space-y-2", undefined, [
+        fold("Application strategy", el("p", "text-sm", f.applicationStrategy)),
+        fold(`CV fixes (${k.resumeSuggestions.length})`, el("ol", "space-y-3 text-sm", undefined, k.resumeSuggestions.map((s) =>
+          el("li", "", undefined, [
+            el("p", "font-medium", s.section),
+            el("p", "text-muted", s.problem),
+            el("p", "mt-1 border-l-2 border-accent pl-2", s.suggestedRevision),
+          ])))),
+        fold("Cover letter", el("div", "space-y-1 text-sm", undefined, [el("p", "text-xs text-muted", `Subject: ${k.coverLetter.subject}`), el("p", "whitespace-pre-line", k.coverLetter.body)])),
+        fold("Application email", el("div", "space-y-1 text-sm", undefined, [el("p", "text-xs text-muted", `Subject: ${k.applicationEmail.subject}`), el("p", "whitespace-pre-line", k.applicationEmail.body)])),
+      ]),
+    );
+  }
+
+  function setTab(json: boolean) {
+    kitEl.classList.toggle("hidden", json);
+    jsonWrap.classList.toggle("hidden", !json);
+    for (const [b, on] of [[tabKit, !json], [tabJson, json]] as const) {
+      b.setAttribute("aria-selected", String(on));
+      b.className = `rounded-md px-3 py-1 ${on ? "bg-accent text-accent-ink" : "text-muted hover:text-ink"}`;
+    }
+  }
+
+  let run: RunData | null = null;
+
+  async function replay() {
+    run ??= await fetch("/data/careerpilot-run.json").then((r) => r.json());
+    const data = run!;
+    go.disabled = true;
+    result.classList.add("hidden");
+    stagesEl.classList.remove("hidden");
+    const stages = [
+      "Read the CV (text file, 1 page)",
+      "Read the pasted job ad",
+      data.research.warning ? `Search for company news: ${data.research.warning.replace(/\.$/, "")}, so the kit is written without it` : `Search for company news: ${data.research.results} results`,
+      "LLM step 1: pull the CV's facts into JSON",
+      "LLM step 2: write the whole kit as one JSON object",
+    ];
+    stagesEl.replaceChildren();
+    for (const s of stages) {
+      const dot = el("span", "inline-block h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-accent");
+      const row = el("li", "flex items-center gap-2", undefined, [dot, el("span", "", s)]);
+      stagesEl.appendChild(row);
+      await wait(s.startsWith("LLM") ? 1100 : 550);
+      dot.className = "inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-accent";
+    }
+    stagesEl.appendChild(el("li", "pt-1 text-xs text-muted", `Done. The real run took ${data.seconds} seconds.`));
+    renderKit(data);
+    jsonCode.replaceChildren(highlight(data.kit));
+    setTab(false);
+    result.classList.remove("hidden");
+    go.textContent = "Replay again";
+    go.disabled = false;
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) {
+      io.disconnect();
+      fetch("/data/careerpilot-run.json").then((r) => r.json()).then((d: RunData) => {
+        run = d;
+        document.getElementById("cp-cv")!.textContent = d.input.cv;
+        document.getElementById("cp-job")!.textContent = `${d.input.jobTitle}, ${d.input.company}`;
+        document.getElementById("cp-tone")!.textContent = d.input.tone;
+      }).catch(() => {});
+    }
+  }, { rootMargin: "200px" });
+  io.observe(root);
+
+  go.addEventListener("click", () => { replay().catch(() => { go.disabled = false; stagesEl.textContent = "The run could not load. Please refresh the page."; }); });
+  tabKit.addEventListener("click", () => setTab(false));
+  tabJson.addEventListener("click", () => setTab(true));
+</script>

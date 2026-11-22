@@ -21,7 +21,10 @@ const href = `/projects/${project.id}/`;
     />
   </a>
   <div class="flex flex-1 flex-col p-5">
-    <p class="text-xs text-muted">{d.dates}</p>
+    <p class="flex items-center justify-between gap-2 text-xs text-muted">
+      <span>{d.dates}</span>
+      {d.tryit && <span class="rounded bg-accent-soft px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-accent">Try it</span>}
+    </p>
     <h3 class="mt-1 text-lg font-semibold leading-snug tracking-tight">
       <a href={href} class="text-ink no-underline hover:text-accent">{d.title}</a>
     </h3>

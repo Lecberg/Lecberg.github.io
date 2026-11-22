@@ -1,0 +1,143 @@
+{
+ "recordedAt": "2026-11-22",
+ "seconds": 78,
+ "input": {
+  "cv": "JORDAN LEE\nFictional sample CV, made for a demo. This person does not exist.\nEmail: jordan.lee@example.com | Hong Kong\n\nEDUCATION\nHarbourview University (fictional), Hong Kong\nBSc in Data Science, expected June 2027. GPA 3.5/4.0\nRelevant courses: Machine Learning, Databases, Data Visualisation, Business Process Analysis\n\nEXPERIENCE\nOperations Assistant (part-time), Sample Tutoring Centre, Hong Kong | Sep 2025 - May 2026\n- Kept the weekly class schedule for 120 students in Google Sheets and sent reminder emails by hand\n- Wrote a short Python script that read the sheet and flagged double-booked rooms, cutting weekly checking from about 2 hours to 20 minutes\n- Answered parent enquiries on WhatsApp and logged them in a shared spreadsheet\n\nMarketing Intern, Sample Cafe Group, Hong Kong | Jun 2025 - Aug 2025\n- Drafted Instagram captions and a monthly email newsletter for 3 cafe branches\n- Pulled monthly follower and email open-rate figures into one Excel report for the manager\n\nPROJECTS\nCourse Feedback Summariser (personal project) | Mar 2026\n- Used the OpenAI API in Python to group 400 free-text course comments into themes and write a one-page summary\n- Checked 50 summaries by hand against the original comments and rewrote the prompt twice to stop it adding claims that were not in the comments\n\nBus Arrival Dashboard (course project) | Nov 2025\n- Called a public bus-arrival API every minute, stored results in SQLite and showed waiting times in a Streamlit dashboard\n\nSKILLS\nPython (pandas, requests), SQL, Google Sheets, Excel, Streamlit, basic JavaScript\nPrompt writing for summaries and classification\nLanguages: Cantonese (native), English (fluent), Mandarin (good)\n",
+  "jobTitle": "AI Workflow Specialist (Intern)",
+  "company": "Multiply Studio & Technologies (FirstResume)",
+  "jobNote": "Real public ad, Winter 2026/27 STEM Internship Scheme. The full job text was pasted in.",
+  "tone": "Bold Professional"
+ },
+ "research": {
+  "warning": "Company search returned no usable results.",
+  "results": 0
+ },
+ "kit": {
+  "job": {
+   "title": "AI Workflow Specialist (Intern)",
+   "company": "Multiply Studio & Technologies (FirstResume)",
+   "location": "Hong Kong Science Park, Pak Shek Kok, N.T., Hong Kong (hybrid; at least 3 days onsite)",
+   "summary": "Winter 2026/27 STEM internship at FirstResume, an AI job hunt platform focused on making career development resources more accessible. The intern will identify manual workflows across operations, business development, sales and marketing and redesign them using AI automation platforms, LLM APIs, prompt development and internal reporting/dashboard work. Internship period: 10 December 2026 to 15 January 2027; minimum 35 hours per week.",
+   "responsibilities": [
+    "Map and document existing manual processes across operations, business development, sales and marketing; identify automation opportunities.",
+    "Design, build and maintain AI workflows using automation platforms such as n8n, Make and Zapier, together with LLM APIs.",
+    "Develop and refine prompts for recurring tasks including content drafting, data extraction, classification and summarisation; test outputs for consistency and reliability.",
+    "Automate internal reporting processes currently performed manually.",
+    "Build AI-assisted workflows for marketing operations, including content pipelines, campaign reporting and audience analysis.",
+    "Consolidate data from analytics platforms into dashboards for internal use.",
+    "Prepare documentation and handover materials so the team can maintain workflows ongoing."
+   ],
+   "requirements": [
+    "Current full-time student enrolled in an eligible STEM programme.",
+    "Demonstrated practical experience applying AI tools to real tasks.",
+    "Working knowledge of no-code or low-code automation platforms.",
+    "Strong analytical and problem-solving skills; ability to break complex processes into structured steps.",
+    "Available full-time for at least 35 hours per week, with at least 3 days onsite at Hong Kong Science Park.",
+    "Diligent, responsible and responsive in task and communication management.",
+    "Self-starting and proactive; able to work independently and take ownership.",
+    "Highly accurate and quality-focused in deliverables.",
+    "Curious, quick to learn and adaptable.",
+    "Collaborative and able to contribute to a shared vision.",
+    "Preferred: scripting experience in Python or JavaScript.",
+    "Preferred: familiarity with APIs and webhooks.",
+    "Preferred: experience with data visualisation tools.",
+    "Preferred: portfolio of self-initiated AI projects.",
+    "Preferred: interest in startups and high-growth environments."
+   ],
+   "keywords": [
+    "AI workflow",
+    "automation",
+    "n8n",
+    "Make",
+    "Zapier",
+    "LLM APIs",
+    "prompt engineering",
+    "process mapping",
+    "data extraction",
+    "classification",
+    "summarisation",
+    "internal reporting",
+    "marketing operations",
+    "campaign reporting",
+    "audience analysis",
+    "dashboards",
+    "data visualisation",
+    "Python",
+    "JavaScript",
+    "APIs",
+    "webhooks",
+    "documentation",
+    "handover",
+    "Hong Kong Science Park",
+    "STEM internship",
+    "FirstResume"
+   ]
+  },
+  "fitAnalysis": {
+   "overallScore": 74,
+   "fitSummary": "Strong partial fit: a Data Science student with Python, API, prompt-design and dashboard evidence, plus operations and marketing exposure that maps to process improvement and reporting. The main gaps are no listed no-code automation platform experience, no explicit webhook evidence, and no confirmed availability for the fixed winter onsite pattern.",
+   "strongMatches": [
+    "BSc Data Science student at Harbourview University, aligned with the STEM programme requirement.",
+    "Built a Python script that read a Google Sheet and flagged double-booked rooms, cutting weekly checking from about 2 hours to 20 minutes — direct evidence of automating a manual operational process.",
+    "Used the OpenAI API in Python to group 400 free-text comments into themes and write summaries; checked 50 summaries against source comments and revised the prompt to stop unsupported claims — close to the role's prompt development, classification, summarisation and output-testing needs.",
+    "Built a bus-arrival dashboard using a public API, SQLite and Streamlit — evidence of API use and data visualisation/dashboard building.",
+    "Marketing internship included drafting Instagram captions and a monthly newsletter and consolidating follower and email open-rate figures into an Excel report — relevant to content pipelines and campaign reporting.",
+    "Based in Hong Kong with Cantonese, English and Mandarin language ability, relevant to a Hong Kong Science Park hybrid team."
+   ],
+   "gaps": [
+    "Resume does not list no-code or low-code automation platforms such as n8n, Make or Zapier; the role requires working knowledge.",
+    "No explicit webhook experience; API evidence is public API requests rather than webhook-based automation.",
+    "Automation examples are part-time, course or personal projects rather than workflows deployed across multiple business functions.",
+    "Resume does not confirm availability for 10 December 2026–15 January 2027, 35 hours per week and at least 3 days onsite at Hong Kong Science Park.",
+    "Only one self-initiated AI project is shown; the preferred qualification asks for a portfolio of self-initiated AI projects."
+   ],
+   "applicationStrategy": "Apply with a process-first angle: lead on identifying a manual room-booking check and building a tested Python automation, then connect prompt validation in the Course Feedback Summariser to FirstResume's need for reliable content, extraction and summarisation workflows. Address the no-code gap honestly by showing code-first automation and either completing a small n8n/Make/Zapier workflow before applying or stating readiness to learn; do not list platforms as skills until used. Confirm winter availability and onsite pattern in the application form or email. Keep the cover letter company-hook first, use one compact evidence example, and avoid a project-report tone."
+  },
+  "resumeSuggestions": [
+   {
+    "section": "Experience — Operations Assistant",
+    "problem": "The automation bullet is strong but split across two bullets, which underplays the process context and outcome the role needs.",
+    "suggestedRevision": "Kept the weekly class schedule for 120 students in Google Sheets; built a Python script that read the sheet and flagged double-booked rooms, cutting weekly checking from about 2 hours to 20 minutes.",
+    "reason": "Combines the manual process and automation outcome in one line without adding facts, making the process-improvement sequence clearer."
+   },
+   {
+    "section": "Experience — Marketing Intern",
+    "problem": "The content and reporting work are separated, so the relevance to marketing operations and campaign reporting is less visible.",
+    "suggestedRevision": "Drafted Instagram captions and a monthly email newsletter for 3 cafe branches, and consolidated monthly follower and email open-rate figures into one Excel report for the manager.",
+    "reason": "Connects content drafting and reporting to the role's marketing workflow responsibilities using only existing resume facts."
+   },
+   {
+    "section": "Projects — Course Feedback Summariser",
+    "problem": "The prompt iteration and validation work are present but buried; this is the closest evidence to prompt development and output testing.",
+    "suggestedRevision": "Used the OpenAI API in Python to group 400 free-text course comments into themes and write a one-page summary; validated 50 summaries against source comments and revised the prompt twice to prevent unsupported claims.",
+    "reason": "Makes prompt refinement and reliability testing visible in one compact project bullet."
+   },
+   {
+    "section": "Skills",
+    "problem": "The role requires no-code or low-code automation platforms, but the resume shows only code-first automation.",
+    "suggestedRevision": "If you complete a small n8n, Make or Zapier workflow, add it under Projects with the trigger, actions and output; otherwise do not list these platforms as skills—keep the Python/API evidence and address platform learning in the application.",
+    "reason": "Avoids fabricating platform experience while giving a concrete way to close the gap."
+   },
+   {
+    "section": "Education / Availability",
+    "problem": "The resume does not state whether the candidate can meet the 10 December 2026–15 January 2027, 35 hours per week, 3 days onsite requirement.",
+    "suggestedRevision": "If accurate, add a line under Education: Available for full-time internship 10 December 2026–15 January 2027; available at least 3 days onsite at Hong Kong Science Park.",
+    "reason": "The role has a fixed winter window and onsite requirement; explicit availability reduces recruiter uncertainty."
+   },
+   {
+    "section": "Projects or Portfolio",
+    "problem": "The preferred qualification asks for a portfolio of self-initiated AI projects; the resume currently shows one personal AI project and one course project.",
+    "suggestedRevision": "If available, add a portfolio or GitHub link and one additional self-initiated AI workflow only after it exists; do not imply a portfolio that is not ready.",
+    "reason": "Strengthens the preferred qualification without inventing projects or links."
+   }
+  ],
+  "coverLetter": {
+   "subject": "AI Workflow Specialist Intern — Jordan Lee",
+   "body": "FirstResume is trying to make career development resources more accessible to young professionals, and the AI Workflow Specialist role is where that mission becomes operational: repeated work across operations, business development, sales and marketing has to become reliable, tested AI workflows. That is the work I want to do—building automation a team can run, check and hand over.\n\nI am a Data Science student at Harbourview University with practical experience in Python, APIs, prompt design and reporting. The closest evidence is my Course Feedback Summariser: I used the OpenAI API to group 400 free-text comments into themes, then checked outputs against the original comments and revised the prompt to stop it adding unsupported claims. That test-and-refine loop is what I would bring to content drafting, extraction, classification and summarisation workflows.\n\nMy part-time operations and marketing internships add the process and reporting context. I kept a 120-student weekly schedule in Google Sheets and built a Python script to flag double-booked rooms, and I consolidated follower and email open-rate figures into a monthly Excel report for three cafe branches. My automation work so far is code-first rather than platform-based; I would extend it to n8n, Make or Zapier with the same test-and-refine discipline.\n\nI would welcome the chance to discuss how I can help FirstResume turn manual processes into maintainable AI workflows."
+  },
+  "applicationEmail": {
+   "subject": "AI Workflow Specialist Intern — Jordan Lee",
+   "body": "Hi FirstResume team,\n\nI’m applying for the AI Workflow Specialist (Intern) role. FirstResume’s aim to make career resources more accessible through AI connects directly to the process-and-prompt work I want to do: turning repeated operational and marketing tasks into workflows that are tested and easy to maintain.\n\nI’m a Data Science student in Hong Kong with hands-on Python, API and prompt experience, including a course-feedback summariser that I checked against source comments before trusting its output. I’d welcome the chance to discuss how I can support automation across operations, business development, sales and marketing. My CV is attached.\n\nBest,\nJordan Lee"
+  }
+ }
+}

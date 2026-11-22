@@ -1,0 +1,31 @@
+JORDAN LEE
+Fictional sample CV, made for a demo. This person does not exist.
+Email: jordan.lee@example.com | Hong Kong
+
+EDUCATION
+Harbourview University (fictional), Hong Kong
+BSc in Data Science, expected June 2027. GPA 3.5/4.0
+Relevant courses: Machine Learning, Databases, Data Visualisation, Business Process Analysis
+
+EXPERIENCE
+Operations Assistant (part-time), Sample Tutoring Centre, Hong Kong | Sep 2025 - May 2026
+- Kept the weekly class schedule for 120 students in Google Sheets and sent reminder emails by hand
+- Wrote a short Python script that read the sheet and flagged double-booked rooms, cutting weekly checking from about 2 hours to 20 minutes
+- Answered parent enquiries on WhatsApp and logged them in a shared spreadsheet
+
+Marketing Intern, Sample Cafe Group, Hong Kong | Jun 2025 - Aug 2025
+- Drafted Instagram captions and a monthly email newsletter for 3 cafe branches
+- Pulled monthly follower and email open-rate figures into one Excel report for the manager
+
+PROJECTS
+Course Feedback Summariser (personal project) | Mar 2026
+- Used the OpenAI API in Python to group 400 free-text course comments into themes and write a one-page summary
+- Checked 50 summaries by hand against the original comments and rewrote the prompt twice to stop it adding claims that were not in the comments
+
+Bus Arrival Dashboard (course project) | Nov 2025
+- Called a public bus-arrival API every minute, stored results in SQLite and showed waiting times in a Streamlit dashboard
+
+SKILLS
+Python (pandas, requests), SQL, Google Sheets, Excel, Streamlit, basic JavaScript
+Prompt writing for summaries and classification
+Languages: Cantonese (native), English (fluent), Mandarin (good)

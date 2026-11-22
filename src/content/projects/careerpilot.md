@@ -4,6 +4,7 @@ subtitle: Turns a CV and a job posting into a complete application kit.
 tagline: Upload a CV, paste a job, and get a fit score, CV fixes, a cover letter and an email, with no invented facts.
 dates: May 2026 – Jul 2026
 order: 1
+tryit: careerpilot
 role: Solo project
 stack: [Node.js, LLM API, Structured JSON, Brave Search API, Vercel]
 links:

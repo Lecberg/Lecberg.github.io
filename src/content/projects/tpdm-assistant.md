@@ -4,6 +4,7 @@ subtitle: A tool-calling agent that answers questions about Hong Kong's traffic 
 tagline: Ask in English or Chinese and get counts, map highlights and drawings, all taken from the data, never made up by the model.
 dates: Jul 2026 – Sep 2026
 order: 3
+tryit: tpdm
 role: Solo project; first version built during my MVA internship
 stack: [Python, LangGraph, Tool calling, Docker, Leaflet, GitHub Pages]
 links:

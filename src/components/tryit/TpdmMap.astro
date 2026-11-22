@@ -1,0 +1,169 @@
+---
+import TryItFrame from "./TryItFrame.astro";
+---
+
+<TryItFrame
+  title="Count signs on a real map"
+  intro="Pick a place, a sign type and a distance. The count updates as you go. This is the same count the assistant's counting tool makes, run here in your browser on the real survey data. The full assistant, with the LLM, runs in Docker."
+  source="Data: Hong Kong Transport Department traffic sign survey (named signs within 1.5 km of each place). Place centres from the Lands Department location search. Map © Lands Department."
+>
+  <div id="tpdm-tryit" class="space-y-4">
+    <fieldset>
+      <legend class="text-sm font-medium">Place</legend>
+      <div id="tpdm-places" class="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Place"></div>
+    </fieldset>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <label class="block text-sm font-medium">
+        Sign type
+        <select id="tpdm-sign" class="mt-2 block w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink"></select>
+      </label>
+      <label class="block text-sm font-medium">
+        Distance: <span id="tpdm-radius-label" class="font-mono">1.0 km</span>
+        <input id="tpdm-radius" type="range" min="0.2" max="1.5" step="0.1" value="1" class="mt-3 block w-full accent-[var(--accent)]" />
+      </label>
+    </div>
+
+    <p id="tpdm-count" aria-live="polite" class="text-lg">
+      <span class="text-muted">Loading the survey data…</span>
+    </p>
+
+    <div id="tpdm-map" class="h-[340px] w-full overflow-hidden rounded-lg border border-line bg-bg sm:h-[420px]" role="img" aria-label="Map of the selected place with a circle showing the distance and dots for each sign inside it"></div>
+    <noscript><p class="text-sm text-muted">This panel needs JavaScript. The screenshots below show the full assistant.</p></noscript>
+  </div>
+</TryItFrame>
+
+<script>
+  type Slice = {
+    places: { name: string; lat: number; lon: number }[];
+    signs: { code: string; name: string }[];
+    points: [number, number, number][];
+  };
+
+  const root = document.getElementById("tpdm-tryit")!;
+  const mapEl = document.getElementById("tpdm-map")!;
+  const placesEl = document.getElementById("tpdm-places")!;
+  const signEl = document.getElementById("tpdm-sign") as HTMLSelectElement;
+  const radiusEl = document.getElementById("tpdm-radius") as HTMLInputElement;
+  const radiusLabel = document.getElementById("tpdm-radius-label")!;
+  const countEl = document.getElementById("tpdm-count")!;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function km(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const rad = Math.PI / 180;
+    const dLat = (lat2 - lat1) * rad;
+    const dLon = (lon2 - lon1) * rad;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
+    return 2 * 6371.0088 * Math.asin(Math.sqrt(a));
+  }
+
+  async function start() {
+    const [L, data] = await Promise.all([
+      import("leaflet").then((m) => m.default),
+      fetch("/data/tpdm-slice.json").then((r) => r.json() as Promise<Slice>),
+      import("leaflet/dist/leaflet.css"),
+    ]);
+
+    let place = 0;
+    let sign = 0;
+
+    // Controls
+    data.places.forEach((p, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = p.name;
+      b.setAttribute("role", "radio");
+      b.className = "rounded-full border px-3 py-1.5 text-sm";
+      b.addEventListener("click", () => { place = i; update(true); });
+      placesEl.appendChild(b);
+    });
+    data.signs.forEach((s, i) => {
+      const o = document.createElement("option");
+      o.value = String(i);
+      o.textContent = `${s.name} (${s.code})`;
+      signEl.appendChild(o);
+    });
+
+    // Map
+    const accent = () => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#095cac";
+    const muted = () => getComputedStyle(document.documentElement).getPropertyValue("--muted").trim() || "#888";
+    const map = L.map(mapEl, { scrollWheelZoom: false, preferCanvas: true, zoomControl: true, attributionControl: true });
+    map.attributionControl.setPrefix(false);
+    // Hong Kong government basemap and English street names (free, no key).
+    // In dark mode the tiles are inverted with CSS (see the style block below).
+    const hk = (path: string, attribution?: string) =>
+      L.tileLayer(`https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/${path}/wgs84/{z}/{x}/{y}.png`, {
+        maxZoom: 19,
+        attribution,
+      });
+    hk("basemap", '&copy; <a href="https://portal.csdi.gov.hk/">Lands Department</a> · Signs: Transport Department').addTo(map);
+    hk("label/hk/en").addTo(map);
+    const layer = L.layerGroup().addTo(map);
+
+    new MutationObserver(() => update(false)).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    function update(move: boolean) {
+      const p = data.places[place];
+      const r = Number(radiusEl.value);
+      radiusLabel.textContent = `${r.toFixed(1)} km`;
+
+      [...placesEl.children].forEach((el, i) => {
+        const on = i === place;
+        el.setAttribute("aria-checked", String(on));
+        el.className = `rounded-full border px-3 py-1.5 text-sm ${on ? "border-accent bg-accent-soft font-semibold text-ink" : "border-line text-muted hover:text-ink"}`;
+      });
+
+      layer.clearLayers();
+      let inside = 0;
+      for (const [s, lon, lat] of data.points) {
+        if (s !== sign) continue;
+        const d = km(p.lat, p.lon, lat, lon);
+        if (d > 1.5) continue;
+        const hit = d <= r;
+        if (hit) inside++;
+        L.circleMarker([lat, lon], {
+          radius: hit ? 4 : 2.5,
+          weight: hit ? 1.5 : 0,
+          color: "#ffffff",
+          fillColor: hit ? accent() : muted(),
+          fillOpacity: hit ? 0.95 : 0.35,
+          interactive: false,
+        }).addTo(layer);
+      }
+      const circle = L.circle([p.lat, p.lon], {
+        radius: r * 1000, color: accent(), weight: 2, fillColor: accent(), fillOpacity: 0.06, interactive: false,
+      }).addTo(layer);
+      L.circleMarker([p.lat, p.lon], { radius: 5, color: "#ffffff", weight: 2, fillColor: accent(), fillOpacity: 1, interactive: false }).addTo(layer);
+
+      if (move) map.fitBounds(circle.getBounds(), { padding: [16, 16], animate: !reduceMotion });
+
+      const s = data.signs[sign];
+      countEl.innerHTML = `<strong class="text-2xl font-bold text-accent">${inside}</strong> ${s.name} sign${inside === 1 ? "" : "s"} <span class="font-mono text-sm text-muted">(${s.code})</span> within ${r.toFixed(1)} km of ${p.name}`;
+    }
+
+    signEl.addEventListener("change", () => { sign = Number(signEl.value); update(false); });
+    radiusEl.addEventListener("input", () => update(true));
+    map.setView([data.places[0].lat, data.places[0].lon], 14);
+    update(true);
+  }
+
+  // Load Leaflet and the data only when the panel comes into view.
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) {
+      io.disconnect();
+      start().catch(() => {
+        countEl.innerHTML = '<span class="text-muted">The map could not load. Please refresh the page.</span>';
+      });
+    }
+  }, { rootMargin: "200px" });
+  io.observe(root);
+</script>
+
+<style is:global>
+  /* Keep Leaflet's controls in the site's colours. */
+  #tpdm-map .leaflet-control-attribution { font-size: 10px; background: color-mix(in srgb, var(--surface) 85%, transparent); color: var(--muted); }
+  #tpdm-map .leaflet-control-attribution a { color: var(--muted); }
+  #tpdm-map .leaflet-bar a { background: var(--surface); color: var(--ink); border-color: var(--line); }
+  #tpdm-map { z-index: 0; }
+  .dark #tpdm-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9); }
+</style>
