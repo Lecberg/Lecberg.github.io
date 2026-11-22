@@ -65,7 +65,12 @@ import TryItFrame from "./TryItFrame.astro";
     const on = new Set(run.keywords.map((_, i) => i));
 
     // Same rule as the pipeline's score_article(), using only the keywords that are switched on.
-    const score = (a: A) => (a.low ? 0 : 10 * a.textKw.filter((k) => on.has(k)).length + 8 * a.titleKw.filter((k) => on.has(k)).length + 8 * +a.hk + 3 * +a.gov);
+    // An article with no keyword switched on scores 0, whatever its bonuses.
+    const score = (a: A) => {
+      const text = a.textKw.filter((k) => on.has(k)).length;
+      if (a.low || text === 0) return 0;
+      return 10 * text + 8 * a.titleKw.filter((k) => on.has(k)).length + 8 * +a.hk + 3 * +a.gov;
+    };
     const select = () =>
       unique.filter((a) => a.ok && score(a) >= run.minScore).sort((x, y) => score(y) - score(x)).slice(0, run.maxItems);
 
@@ -118,7 +123,7 @@ import TryItFrame from "./TryItFrame.astro";
     function scoredView() {
       const top = [...unique].sort((x, y) => y.score - x.score).slice(0, 12);
       return el("div", "space-y-3", undefined, [
-        el("p", "text-sm", `Each keyword found adds 10 points (another 8 if it is in the headline), "Hong Kong" adds 8, and a government source adds 3. An article needs ${run.minScore} points to qualify. The highest scores:`),
+        el("p", "text-sm", `An article must match at least one keyword. Each keyword found adds 10 points (another 8 if it is in the headline), "Hong Kong" adds 8, and a government source adds 3. An article needs ${run.minScore} points to qualify. The highest scores:`),
         el("ol", "divide-y divide-line rounded-lg border border-line", undefined, top.map((a) =>
           el("li", "flex gap-3 px-3 py-2 text-sm", undefined, [
             el("span", `w-9 shrink-0 text-right font-mono font-semibold ${a.score >= run.minScore ? "text-accent" : "text-muted"}`, String(a.score)),

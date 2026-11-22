@@ -86,7 +86,7 @@ def parts(article):
     }
 
 def rescore(p):
-    if p["low"]:
+    if p["low"] or not p["textKw"]:
         return 0
     return 10 * len(p["textKw"]) + 8 * len(p["titleKw"]) + 8 * p["hk"] + 3 * p["gov"]
 
