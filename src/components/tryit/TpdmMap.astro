@@ -138,7 +138,7 @@ import TryItFrame from "./TryItFrame.astro";
       if (move) map.fitBounds(circle.getBounds(), { padding: [16, 16], animate: !reduceMotion });
 
       const s = data.signs[sign];
-      countEl.innerHTML = `<strong class="text-2xl font-bold text-accent">${inside}</strong> ${s.name} sign${inside === 1 ? "" : "s"} <span class="font-mono text-sm text-muted">(${s.code})</span> within ${r.toFixed(1)} km of ${p.name}`;
+      countEl.innerHTML = `<strong class="text-2xl font-bold tabular-nums text-accent">${inside}</strong> ${s.name} sign${inside === 1 ? "" : "s"} <span class="font-mono text-sm text-muted">(${s.code})</span> within ${r.toFixed(1)} km of ${p.name}`;
     }
 
     signEl.addEventListener("change", () => { sign = Number(signEl.value); update(false); });
