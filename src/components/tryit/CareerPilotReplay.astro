@@ -131,22 +131,22 @@ import TryItFrame from "./TryItFrame.astro";
     kitEl.replaceChildren(
       el("div", "flex items-center gap-4", undefined, [
         ring(f.overallScore),
-        el("div", "", undefined, [el("p", "text-xs font-medium text-muted", "Fit score"), el("p", "text-sm", f.fitSummary)]),
+        el("div", "", undefined, [el("p", "text-xs font-medium text-muted", "Fit score"), el("p", "max-w-3xl text-sm", f.fitSummary)]),
       ]),
       el("div", "mt-4 grid gap-4 sm:grid-cols-2", undefined, [
         el("div", "rounded-lg border border-line p-3", undefined, [el("p", "text-sm font-semibold", "Strong matches"), list(f.strongMatches, "+", "text-accent")]),
         el("div", "rounded-lg border border-line p-3", undefined, [el("p", "text-sm font-semibold", "Gaps, named instead of hidden"), list(f.gaps, "−", "text-muted")]),
       ]),
       el("div", "mt-4 space-y-2", undefined, [
-        fold("Application strategy", el("p", "text-sm", f.applicationStrategy)),
-        fold(`CV fixes (${k.resumeSuggestions.length})`, el("ol", "space-y-3 text-sm", undefined, k.resumeSuggestions.map((s) =>
+        fold("Application strategy", el("p", "max-w-3xl text-sm", f.applicationStrategy)),
+        fold(`CV fixes (${k.resumeSuggestions.length})`, el("ol", "max-w-3xl space-y-3 text-sm", undefined, k.resumeSuggestions.map((s) =>
           el("li", "", undefined, [
             el("p", "font-medium", s.section),
             el("p", "text-muted", s.problem),
             el("p", "mt-1 border-l-2 border-accent pl-2", s.suggestedRevision),
           ])))),
-        fold("Cover letter", el("div", "space-y-1 text-sm", undefined, [el("p", "text-xs text-muted", `Subject: ${k.coverLetter.subject}`), el("p", "whitespace-pre-line", k.coverLetter.body)])),
-        fold("Application email", el("div", "space-y-1 text-sm", undefined, [el("p", "text-xs text-muted", `Subject: ${k.applicationEmail.subject}`), el("p", "whitespace-pre-line", k.applicationEmail.body)])),
+        fold("Cover letter", el("div", "max-w-3xl space-y-1 text-sm", undefined, [el("p", "text-xs text-muted", `Subject: ${k.coverLetter.subject}`), el("p", "whitespace-pre-line", k.coverLetter.body)])),
+        fold("Application email", el("div", "max-w-3xl space-y-1 text-sm", undefined, [el("p", "text-xs text-muted", `Subject: ${k.applicationEmail.subject}`), el("p", "whitespace-pre-line", k.applicationEmail.body)])),
       ]),
     );
   }

@@ -28,19 +28,20 @@ interface Props {
 
 const { project, prev, next } = Astro.props;
 const d = project.data;
-const { Content } = await render(project);
+const { Content, headings } = await render(project);
+const sections = headings.filter((h) => h.depth === 2);
 ---
 
 <Base title={`${d.title} · Ryan Ma`} description={d.tagline}>
-  <article class="mx-auto max-w-3xl px-4 pt-10 sm:px-6 sm:pt-14">
+  <article class="wrap pt-10 sm:pt-14">
     <a href="/#projects" class="text-sm text-muted no-underline hover:text-ink">← All projects</a>
 
     <!-- Header strip -->
-    <header class="mt-6">
+    <header class="mt-6 max-w-4xl">
       <p class="font-mono text-sm text-accent">{d.dates} · {d.role}</p>
-      <h1 class="mt-2 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{d.title}</h1>
-      <p class="mt-2 text-lg text-muted">{d.subtitle}</p>
-      <ul class="mt-5 flex flex-wrap gap-1.5" aria-label="Built with">
+      <h1 class="mt-2 text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{d.title}</h1>
+      <p class="mt-3 text-lg text-muted lg:text-xl">{d.subtitle}</p>
+      <ul class="mt-5 flex flex-wrap gap-1.5 lg:hidden" aria-label="Built with">
         {d.stack.map((t) => (
           <li class="rounded border border-line px-2 py-0.5 font-mono text-xs text-muted">{t}</li>
         ))}
@@ -54,7 +55,7 @@ const { Content } = await render(project);
     </header>
 
     <a href={d.cover.src} class="mt-10 block overflow-hidden rounded-xl border border-line">
-      <Image src={d.cover} alt={d.coverAlt} widths={[640, 1024, 1600]} sizes="(min-width: 768px) 720px, 100vw" class="w-full" loading="eager" />
+      <Image src={d.cover} alt={d.coverAlt} widths={[640, 1024, 1600, 2000]} sizes="(min-width: 1440px) 1360px, 100vw" class="w-full" loading="eager" />
     </a>
 
     <!-- Results -->
@@ -62,22 +63,22 @@ const { Content } = await render(project);
       <h2 id="results" class="sr-only">Results</h2>
       <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4">
         {d.figures.map((f) => (
-          <div class="flex flex-col-reverse bg-surface p-4">
-            <dt class="mt-1 text-xs text-muted">{f.label}</dt>
-            <dd class="text-2xl font-bold tracking-tight tabular-nums text-accent">{f.value}</dd>
+          <div class="flex flex-col-reverse bg-surface p-4 lg:p-6">
+            <dt class="mt-1 text-xs text-muted lg:text-sm">{f.label}</dt>
+            <dd class="text-2xl font-bold tracking-tight tabular-nums text-accent lg:text-3xl">{f.value}</dd>
           </div>
         ))}
       </dl>
     </section>
 
     <!-- Problem -->
-    <section class="mt-12">
+    <section class="mt-12 lg:mt-16">
       <h2 class="text-xl font-bold tracking-tight">The problem</h2>
-      <p class="mt-3">{d.problem}</p>
+      <p class="mt-3 max-w-3xl text-lg">{d.problem}</p>
     </section>
 
     <!-- Flow -->
-    <section class="mt-12">
+    <section class="mt-12 lg:mt-16">
       <h2 class="text-xl font-bold tracking-tight">How it works</h2>
       <div class="mt-5">
         <Flow steps={d.flow} />
@@ -89,20 +90,68 @@ const { Content } = await render(project);
     {d.tryit === "ppp" && <PppRun />}
     {d.tryit === "careerpilot" && <CareerPilotReplay />}
 
-    <!-- Markdown body: What I built, Keeping it reliable, ... -->
-    <div class="prose-case mt-4">
-      <Content />
+    <!-- Body: sticky sidebar + Markdown (What I built, Keeping it reliable, ...) -->
+    <div class="mt-12 border-t border-line pt-10 lg:mt-16 lg:grid lg:grid-cols-12 lg:gap-12 lg:pt-14">
+      <aside class="hidden lg:col-span-3 lg:block" aria-label="Project details">
+        <div class="sticky top-20 space-y-6 text-sm">
+          <dl class="space-y-3">
+            <div>
+              <dt class="text-xs text-muted">Dates</dt>
+              <dd class="mt-0.5 font-medium">{d.dates}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Role</dt>
+              <dd class="mt-0.5 font-medium">{d.role}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Built with</dt>
+              <dd class="mt-1.5">
+                <ul class="flex flex-wrap gap-1.5">
+                  {d.stack.map((t) => (
+                    <li class="rounded border border-line px-2 py-0.5 font-mono text-xs text-muted">{t}</li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          </dl>
+          {sections.length > 0 && (
+            <nav aria-label="On this page" class="border-t border-line pt-5">
+              <p class="text-xs text-muted">On this page</p>
+              <ul class="mt-2 space-y-1.5">
+                {sections.map((h) => (
+                  <li><a href={`#${h.slug}`} class="text-ink no-underline hover:text-accent">{h.text}</a></li>
+                ))}
+                <li><a href="#screenshots" class="text-ink no-underline hover:text-accent">Screenshots</a></li>
+              </ul>
+            </nav>
+          )}
+          <div class="flex flex-col gap-1.5 border-t border-line pt-5 font-medium">
+            {d.links.demo && <a href={d.links.demo} class="text-accent no-underline hover:underline">{d.links.demoLabel ?? "Live demo"} ↗</a>}
+            <a href={d.links.code} class="text-accent no-underline hover:underline">Code on GitHub ↗</a>
+          </div>
+        </div>
+      </aside>
+
+      <div class="prose-case max-w-[70ch] lg:col-span-9">
+        <Content />
+      </div>
     </div>
 
     <!-- Screenshots -->
-    <section class="mt-12">
+    <section id="screenshots" class="mt-12 scroll-mt-20 lg:mt-16">
       <h2 class="text-xl font-bold tracking-tight">Screenshots</h2>
       <p class="mt-1 text-sm text-muted">Select an image to open it at full size.</p>
-      <div class="mt-5 grid gap-6">
-        {d.gallery.map((g) => (
-          <figure>
-            <a href={g.src.src} class="block overflow-hidden rounded-xl border border-line">
-              <Image src={g.src} alt={g.alt} widths={[640, 1024, 1600]} sizes="(min-width: 768px) 720px, 100vw" class="mx-auto max-h-[640px] w-auto" />
+      <div class="mt-5 grid gap-6 md:grid-cols-2">
+        {d.gallery.map((g, i) => (
+          <figure class="md:[&:last-child:nth-child(odd)]:col-span-2">
+            <a href={g.src.src} class="flex items-center justify-center overflow-hidden rounded-xl border border-line bg-surface">
+              <Image
+                src={g.src}
+                alt={g.alt}
+                widths={[640, 1024, 1600]}
+                sizes={i === d.gallery.length - 1 && i % 2 === 0 ? "(min-width: 1440px) 1360px, 100vw" : "(min-width: 768px) 50vw, 100vw"}
+                class="max-h-[640px] w-auto"
+              />
             </a>
             <figcaption class="mt-2 text-sm text-muted">{g.caption}</figcaption>
           </figure>

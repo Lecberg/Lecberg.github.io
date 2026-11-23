@@ -40,6 +40,20 @@
   --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
+/* Shared page container: grows to 1440px, centred, with fluid side padding. */
+@utility wrap {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 90rem;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
 html {
   background: var(--bg);
   color: var(--ink);
@@ -69,6 +83,10 @@ a {
   font-weight: 700;
   margin: 2.5rem 0 0.75rem;
   letter-spacing: -0.01em;
+  scroll-margin-top: 5rem;
+}
+.prose-case > :first-child {
+  margin-top: 0;
 }
 .prose-case p {
   margin: 0.75rem 0;

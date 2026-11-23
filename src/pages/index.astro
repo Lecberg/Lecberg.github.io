@@ -39,9 +39,9 @@ const rules = [
   description="AI workflows by Ryan Ma that take over manual work: an application-kit generator, a bilingual newsletter pipeline and a tool-calling map assistant."
 >
   <!-- Hero -->
-  <section class="mx-auto max-w-5xl px-4 pb-16 pt-16 sm:px-6 sm:pt-24">
+  <section class="wrap pb-16 pt-16 sm:pt-24 lg:pb-24 lg:pt-28">
     <p class="font-mono text-sm text-accent">Ryan Ma · MSc student, The University of Hong Kong</p>
-    <h1 class="mt-4 max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
+    <h1 class="mt-4 max-w-5xl text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
       I build AI workflows that take over manual work, with a person checking what goes out.
     </h1>
     <p class="mt-6 max-w-2xl text-lg text-muted">
@@ -57,10 +57,12 @@ const rules = [
 
   <!-- Projects -->
   <section id="projects" class="scroll-mt-20 border-t border-line">
-    <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <h2 class="text-2xl font-bold tracking-tight">Projects</h2>
-      <p class="mt-2 text-muted">Each card opens a case study: the problem, how it works, how it is kept reliable, and the results.</p>
-      <div class="mt-8 grid gap-6 md:grid-cols-3">
+    <div class="wrap py-16 lg:py-20">
+      <div class="lg:grid lg:grid-cols-12 lg:items-baseline lg:gap-12">
+        <h2 class="text-2xl font-bold tracking-tight lg:col-span-4">Projects</h2>
+        <p class="mt-2 max-w-2xl text-muted lg:col-span-8 lg:mt-0">Each card opens a case study: the problem, how it works, how it is kept reliable, and the results.</p>
+      </div>
+      <div class="mt-8 grid gap-6 md:grid-cols-2 lg:mt-10 lg:grid-cols-3">
         {projects.map((p) => <ProjectCard project={p} />)}
       </div>
     </div>
@@ -68,13 +70,15 @@ const rules = [
 
   <!-- Approach -->
   <section id="approach" class="scroll-mt-20 border-t border-line">
-    <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <h2 class="text-2xl font-bold tracking-tight">How I build</h2>
-      <p class="mt-2 max-w-2xl text-muted">All three projects follow the same chain. The LLM does one clear job in the middle, and plain code handles everything that has to be exact.</p>
-      <div class="mt-8">
+    <div class="wrap py-16 lg:py-20">
+      <div class="lg:grid lg:grid-cols-12 lg:items-baseline lg:gap-12">
+        <h2 class="text-2xl font-bold tracking-tight lg:col-span-4">How I build</h2>
+        <p class="mt-2 max-w-2xl text-muted lg:col-span-8 lg:mt-0">All three projects follow the same chain. The LLM does one clear job in the middle, and plain code handles everything that has to be exact.</p>
+      </div>
+      <div class="mt-8 lg:mt-10">
         <Flow steps={[...chain]} label="The shared workflow chain" />
       </div>
-      <ul class="mt-10 grid gap-4 sm:grid-cols-2">
+      <ul class="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {rules.map((r) => (
           <li class="rounded-xl border border-line bg-surface p-5">
             <h3 class="font-semibold">{r.title}</h3>
@@ -87,9 +91,9 @@ const rules = [
 
   <!-- About -->
   <section id="about" class="scroll-mt-20 border-t border-line">
-    <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-      <h2 class="text-2xl font-bold tracking-tight">About</h2>
-      <div class="mt-4 max-w-2xl space-y-4 text-muted">
+    <div class="wrap py-16 lg:grid lg:grid-cols-12 lg:gap-12 lg:py-20">
+      <h2 class="text-2xl font-bold tracking-tight lg:col-span-4">About</h2>
+      <div class="mt-4 max-w-2xl space-y-4 text-muted lg:col-span-8 lg:mt-0">
         <p>
           I'm Ryan Ma, studying for an MSc in Urban Design &amp; Transport at The University of Hong Kong (graduating 2027). Before that I took a BEng in Traffic Engineering at Chang'an University.
         </p>
